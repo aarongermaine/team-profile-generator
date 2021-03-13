@@ -36,6 +36,35 @@ const questions = () => {
       message: "Add an Engineer or an Intern? or Finish?",
       name: "eif",
       choices: ["Engineer", "Intern", "Finish"],
+      validate(questions) {
+        if (questions.choices[0]) {
+          return inquirer.prompt(engineer);
+        } else if (questions.choices[1]) {
+          return inquirer.prompt(intern);
+        } else {
+          return; //print html
+        }
+      },
+    },
+  ]);
+};
+
+const engineer = () => {
+  return inquirer.prompt([
+    {
+      type: "input",
+      name: "team",
+      message: "What is the name of your team?",
+    },
+  ]);
+};
+
+const intern = () => {
+  return inquirer.prompt([
+    {
+      type: "input",
+      name: "team",
+      message: "What is the name of your team?",
     },
   ]);
 };
