@@ -40,15 +40,17 @@ const questions = () => {
   ]);
 };
 
-function validate(answers) {
+const validate = (answers) => {
   if (answers.eif === "Engineer") {
-    return engineer();
+    engineer();
+    generateHTMLengineer(answers);
   } else if (answers.eif === "Intern") {
-    return intern();
+    intern();
+    generateHTMLintern();
   } else {
     return; //print html
   }
-}
+};
 
 const engineer = () => {
   return inquirer.prompt([
@@ -158,15 +160,12 @@ const generateHTMLintern = (answers) =>
     <li class="list-group-item">School: ${answers.internSchool}</li>
   </ul>`;
 
-(() => {
-  questions().then((answers) => {
-    validate(answers);
-    writeFileAsync(
-      "index.html",
-      generateHTML(answers),
-      generateHTMLengineer(answers),
-      generateHTMLintern(answers)
-    );
-    console.log("Profile Generation Complete");
-  });
-})();
+const finish = () => {
+  questions()
+    .then((answers) =>
+      writeFileAsync("index.html", vailidate(answers), generateHTML(answers))
+    )
+    .then(() => console.log("Profile Generation Complete"));
+};
+
+finish();
