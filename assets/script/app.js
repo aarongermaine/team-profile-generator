@@ -40,19 +40,32 @@ const questions = () => {
   ]);
 };
 
-const validate = (answers) => {
-  if (answers.eif === "Engineer") {
-    engineer();
-    generateHTMLengineer(answers);
-  } else if (answers.eif === "Intern") {
-    intern();
-    generateHTMLintern();
-  } else {
-    return; //print html
+const validate = async (answers) => {
+  if (answers.eif[0] === "Engineer" && answers.eif[1] === "Intern") {
+    const res = await both().then((gen) => {
+      answers.engineer = generateHTMLengineer(gen);
+      answers.intern = generateHTMLintern(gen);
+      return { ...answers };
+    });
+    return res;
+  } else if (answers.eif[0] === "Engineer") {
+    const res = await engineer().then((gen) => {
+      answers.engineer = generateHTMLengineer(gen);
+      return { ...answers };
+    });
+    return res;
+  } else if (answers.eif[0] === "Intern") {
+    const res = await intern().then((gen) => {
+      answers.intern = generateHTMLintern(gen);
+      return { ...answers };
+    });
+    return res;
+  } else if (answers.eif[0] === "Finish") {
+    return { ...answers };
   }
 };
 
-const engineer = () => {
+const engineer = async () => {
   return inquirer.prompt([
     {
       type: "input",
@@ -102,8 +115,53 @@ const intern = () => {
   ]);
 };
 
-const generateHTML = (answers) =>
-  `<!DOCTYPE html>
+const both = () => {
+  return inquirer.prompt([
+    {
+      type: "input",
+      name: "internName",
+      message: "What is the name of your intern?",
+    },
+    {
+      type: "input",
+      name: "internID",
+      message: "What is the id of your intern?",
+    },
+    {
+      type: "input",
+      name: "internEmail",
+      message: "What is your intern's email?",
+    },
+    {
+      type: "input",
+      name: "internSchool",
+      message: "What is the name of your intern's school?",
+    },
+    {
+      type: "input",
+      name: "engineerName",
+      message: "What is the name of your engineer?",
+    },
+    {
+      type: "input",
+      name: "engineerID",
+      message: "What is the id of your engineer?",
+    },
+    {
+      type: "input",
+      name: "engineerEmail",
+      message: "What is the email for your engineer?",
+    },
+    {
+      type: "input",
+      name: "engineerGit",
+      message: "What is the Github username for your engineer?",
+    },
+  ]);
+};
+
+const generateHTML = (answers) => {
+  return `<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
@@ -113,30 +171,28 @@ const generateHTML = (answers) =>
 </head>
 <body>
   <div class="jumbotron jumbotron-fluid">
-  <div class="container">
-    <h1 class="display-4">${answers.team}</h1>
-    <div class="card" style="width: 18rem;">
- 
-  <div class="card-body">
-    <h5 class="">${answers.manager}</h5>
-    
+    <div class="container">
+      <h1 class="display-4">${answers.team}</h1>
+        <div class="card" style="width: 18rem;">
+          <div class="card-body">
+            <h5 class="">${answers.manager}</h5>
+          </div>
+            <ul class="list-group list-group-flush">
+              <li class="list-group-item">Employee ID: ${answers.id1}</li>
+              <li class="list-group-item">Email: ${answers.email1}</li>
+              <li class="list-group-item">Phone: ${answers.phone1}</li>
+            </ul>
+        </div>
+      </div> 
+      ${answers.engineer === undefined ? "" : answers.engineer}
+      ${answers.intern === undefined ? "" : answers.intern}
+    </div>
   </div>
-  <ul class="list-group list-group-flush">
-    <li class="list-group-item">Employee ID: ${answers.id1}</li>
-    <li class="list-group-item">Email: ${answers.email1}</li>
-    <li class="list-group-item">Phone: ${answers.phone1}</li>
-  </ul>
-  
-</div>
-    
-  </div>
-</div>
 </body>
 </html>`;
-
+};
 const generateHTMLengineer = (answers) =>
   `
- 
   <div class="card-body">
     <h5 class="">${answers.engineerName}</h5>
     
@@ -149,7 +205,6 @@ const generateHTMLengineer = (answers) =>
 
 const generateHTMLintern = (answers) =>
   `
- 
   <div class="card-body">
     <h5 class="">${answers.internName}</h5>
     
@@ -160,12 +215,10 @@ const generateHTMLintern = (answers) =>
     <li class="list-group-item">School: ${answers.internSchool}</li>
   </ul>`;
 
-const finish = () => {
-  questions()
-    .then((answers) =>
-      writeFileAsync("index.html", vailidate(answers), generateHTML(answers))
-    )
-    .then(() => console.log("Profile Generation Complete"));
-};
-
-finish();
+(() => {
+  questions().then((answers) => {
+    validate(answers).then((data) => {
+      writeFileAsync("index.html", generateHTML(data));
+    });
+  });
+})();
