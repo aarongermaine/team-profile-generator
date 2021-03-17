@@ -222,3 +222,8 @@ const generateHTMLintern = (answers) =>
     });
   });
 })();
+
+module.exports = questions;
+module.exports = engineer;
+module.exports = intern;
+module.exports = both;
